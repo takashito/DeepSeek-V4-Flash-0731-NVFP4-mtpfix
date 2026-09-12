@@ -1,0 +1,18 @@
+MTP-dspark-k3 c=1: per-stream decode 99.5 tok/s | aggregate 97.0 tok/s | mean TTFT 99 ms | tokens 4096
+    108.4 tok/s   512 tok  Pythonでクイックソートを実装して、各行にコメントを付けて
+     96.8 tok/s   512 tok  Explain how TCP congestion control works
+    119.1 tok/s   512 tok  1から100までの素数をすべて列挙し、その合計を計算過程とともに示して
+     88.9 tok/s   512 tok  東京の観光プランを3日分、時間ごとに詳しく作って
+     97.5 tok/s   512 tok  Write a bash script that backs up /etc t
+     89.6 tok/s   512 tok  日本の歴史を縄文時代から現代まで簡潔にまとめて
+    100.6 tok/s   512 tok  Implement a thread-safe LRU cache in Go 
+     95.0 tok/s   512 tok  Summarize the key ideas of the transform
+MTP-dspark-k3 c=4: per-stream decode 52.4 tok/s | aggregate 150.1 tok/s | mean TTFT 2440 ms | tokens 4041
+     30.2 tok/s   512 tok  Pythonでクイックソートを実装して、各行にコメントを付けて
+     28.2 tok/s   512 tok  Explain how TCP congestion control works
+     72.7 tok/s   511 tok  1から100までの素数をすべて列挙し、その合計を計算過程とともに示して
+     54.6 tok/s   512 tok  東京の観光プランを3日分、時間ごとに詳しく作って
+     57.1 tok/s   512 tok  Write a bash script that backs up /etc t
+     52.1 tok/s   512 tok  日本の歴史を縄文時代から現代まで簡潔にまとめて
+     63.7 tok/s   512 tok  Implement a thread-safe LRU cache in Go 
+     60.3 tok/s   458 tok  Summarize the key ideas of the transform

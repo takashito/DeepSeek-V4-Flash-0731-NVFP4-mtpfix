@@ -1,0 +1,12 @@
+n=300 finish={'stop': 298, 'length': 2} completion_tokens total=3246265 median=6156 max=131072
+/root/ifbench-run/eval2/responses-eval_results_strict.jsonl Accuracy Scores:
+prompt-level: 0.74
+instruction-level: 0.7645348837209303
+--
+/root/ifbench-run/eval2/responses-eval_results_loose.jsonl Accuracy Scores:
+prompt-level: 0.79
+instruction-level: 0.813953488372093
+275/300 done, 8201s, tokens so far 3098870
+300/300 done, 8574s, tokens so far 3246265
+GEN_DONE n=300 wall=8574s finish={'stop': 298, 'length': 2} tokens total=3246265 median=6156 max=131072
+SCORE_DONE
