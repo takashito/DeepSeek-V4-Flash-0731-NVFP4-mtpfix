@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Build DeepSeek-V4-Flash-0731-NVFP4-mtpfix from the stock nvidia/DeepSeek-V4-Flash-0731-NVFP4.
+# Build DeepSeek-V4-Flash-0731-NVFP4-mtpfix from the original nvidia/DeepSeek-V4-Flash-0731-NVFP4.
 #
-#   SRC=/data/models/DeepSeek-V4-Flash-0731-NVFP4 \
-#   DST=/data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix ./prepare_mtpfix.sh
+#   ./prepare_mtpfix.sh /data/models/DeepSeek-V4-Flash-0731-NVFP4 /data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix
+#
+# Optional env: IMAGE, MODELOPT_VERSION, SHARD_CAST_URL.
 #
 # The destination is a hardlink farm of the source: only the drafter shards and the three
 # metadata files are rewritten (~11 GB), everything else shares inodes with the source.
@@ -10,15 +11,17 @@
 # lives on Model-Optimizer main, not in any pip release.
 set -euo pipefail
 
-SRC="${SRC:-/data/models/DeepSeek-V4-Flash-0731-NVFP4}"
-DST="${DST:-/data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix}"
+[ $# -eq 2 ] || { echo "usage: $0 SRC DST   (original model dir, new repaired model dir)" >&2; exit 2; }
 IMAGE="${IMAGE:-vllm/vllm-openai:v0.29.0}"          # any image with torch + safetensors works
 MODELOPT_VERSION="${MODELOPT_VERSION:-0.46.0}"
 SHARD_CAST_URL="${SHARD_CAST_URL:-https://raw.githubusercontent.com/NVIDIA/Model-Optimizer/main/modelopt/torch/export/shard_cast_utils.py}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-[ -d "$SRC" ] || { echo "source checkpoint not found: $SRC" >&2; exit 1; }
-[ -e "$DST" ] && { echo "destination already exists: $DST" >&2; exit 1; }
+[ -d "$1" ] || { echo "source checkpoint not found: $1" >&2; exit 1; }
+[ -e "$2" ] && { echo "destination already exists: $2" >&2; exit 1; }
+# Absolute paths: the container mounts them at the same location.
+SRC="$(cd "$1" && pwd)"
+DST="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 
 echo "==> hardlink copy $SRC -> $DST"
 cp -al "$SRC" "$DST"
@@ -50,7 +53,7 @@ docker run -d --name "$CONTAINER" "${mounts[@]}" --entrypoint sleep "$IMAGE" inf
 docker exec "$CONTAINER" pip install -q "nvidia-modelopt==${MODELOPT_VERSION}" 2>&1 | grep -vE "WARNING|notice" || true
 docker exec "$CONTAINER" curl -fsSL "$SHARD_CAST_URL" -o /tmp/shard_cast_utils.py
 docker cp "$HERE/cast_mtp_to_nvfp4.py" "$CONTAINER:/tmp/cast_mtp_to_nvfp4.py"
-docker exec -e SRC="$SRC" -e DST="$DST" "$CONTAINER" python3 /tmp/cast_mtp_to_nvfp4.py
+docker exec "$CONTAINER" python3 /tmp/cast_mtp_to_nvfp4.py "$SRC" "$DST"
 
 echo "==> done: $DST"
 du -sh --apparent-size "$DST" 2>/dev/null || true

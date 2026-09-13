@@ -112,13 +112,13 @@ Build time: a few minutes of CPU.
 
 ## 🔧 Build
 
-`SRC` is the original model's folder, `DST` is where the repaired model is created.
-
 ```bash
-SRC=/data/models/DeepSeek-V4-Flash-0731-NVFP4 \
-DST=/data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix \
-./scripts/prepare_mtpfix.sh
+./scripts/prepare_mtpfix.sh SRC DST
+./scripts/prepare_mtpfix.sh /data/models/DeepSeek-V4-Flash-0731-NVFP4 /data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix
 ```
+
+`SRC` is the original model's folder, `DST` is where the repaired model is created (must not
+exist yet).
 
 What it does:
 

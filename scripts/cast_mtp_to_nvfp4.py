@@ -22,7 +22,8 @@ and drafter shards have been unlinked — prepare_mtpfix.sh does that and is the
 entry point. Requires torch, safetensors, nvidia-modelopt, and Model-Optimizer main's
 ``shard_cast_utils.py`` on sys.path.
 
-Env: SRC, DST (checkpoint directories), SHARD_CAST_DIR (default /tmp, holds
+Usage: cast_mtp_to_nvfp4.py SRC DST (checkpoint directories).
+Env: SHARD_CAST_DIR (default /tmp, holds
 shard_cast_utils.py), INPUT_AMAX_W13 / INPUT_AMAX_W2 (override the computed constants).
 """
 
@@ -32,6 +33,10 @@ import re
 import struct
 import sys
 import time
+
+if len(sys.argv) != 3:
+    raise SystemExit("usage: cast_mtp_to_nvfp4.py SRC DST")
+SRC, DST = (p.rstrip("/") + "/" for p in sys.argv[1:])
 
 sys.path.insert(0, os.environ.get("SHARD_CAST_DIR", "/tmp"))
 
@@ -44,8 +49,6 @@ from shard_cast_utils import (  # Model-Optimizer main, not in any pip release
     quantize_mxfp4_to_nvfp4_lossless,
 )
 
-SRC = os.environ.get("SRC", "/data/models/DeepSeek-V4-Flash-0731-NVFP4").rstrip("/") + "/"
-DST = os.environ.get("DST", "/data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix").rstrip("/") + "/"
 E2M1_MAX, E4M3_MAX = 6.0, 448.0  # NVFP4: scale_2 = amax / (E2M1_MAX * E4M3_MAX)
 WEIGHT_RE = re.compile(r"^mtp\.\d+\.ffn\.experts\.\d+\.(w[123])\.weight$")
 SCALE_RE = re.compile(r"^(mtp\.\d+\.ffn\.experts\.\d+\.w[123])\.scale$")
