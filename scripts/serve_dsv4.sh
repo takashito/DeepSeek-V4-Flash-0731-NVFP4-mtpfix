@@ -3,8 +3,8 @@
 #
 # Defaults reflect what is deployed and benchmarked (see ../README.md):
 #   * -mtpfix checkpoint  : drafter experts cast MXFP4 -> NVFP4, so DSpark actually drafts well
-#   * DSpark k=7, greedy  : NVIDIA's recommended setting for DeepSeek-V4-Flash-DSpark
-#   * max-model-len       : 987136 — the drafter's memory is what caps it below 1M
+#   * DSpark k=5, greedy  : ~3.3 tokens accepted per step; k=5 beat k=7 (212 vs 207, 415 vs 390 tok/s)
+#   * max-model-len       : 1038592 — the drafter's memory is what caps it below 1M
 #   * autotune disabled   : startup FlashInfer MoE autotune deadlocks the TP ranks on SM120
 #   * DeepGEMM stays on   : VLLM_USE_DEEP_GEMM=0 fails, CUTLASS scaled_mm rejects SM120
 #
@@ -14,7 +14,7 @@
 #   DSV4_API_KEY  bearer token for the OpenAI-compatible API; unset = no authentication
 #   ENV_FILE      file to source first, e.g. one holding DSV4_API_KEY=...
 #   GPUS HOST PORT IMAGE MAX_LEN GPU_UTIL MAX_SEQS MNBT
-#   SPEC_ARGS     speculative decoding flags; SPEC_ARGS= (empty) turns MTP off
+#   SPEC_ARGS     speculative decoding flags; SPEC_ARGS= (empty) turns DSpark off
 #   DOCKER_ENV    extra docker flags, e.g. DOCKER_ENV="-e VLLM_LOGGING_LEVEL=DEBUG"
 #   EXTRA_ARGS    extra vLLM flags
 #
@@ -27,7 +27,7 @@ set -euo pipefail
 
 MODEL_DIR="${MODEL_DIR:-/data/models/DeepSeek-V4-Flash-0731-NVFP4-mtpfix}"
 MODELS_ROOT="${MODELS_ROOT:-$(dirname "$MODEL_DIR")}"
-SPEC_DEFAULT='--speculative-config {"method":"dspark","num_speculative_tokens":7,"draft_sample_method":"greedy"}'
+SPEC_DEFAULT='--speculative-config {"method":"dspark","num_speculative_tokens":5,"draft_sample_method":"greedy"}'
 
 auth=()
 [ -n "${DSV4_API_KEY:-}" ] && auth=(--api-key "$DSV4_API_KEY")
@@ -42,7 +42,7 @@ docker run -d --name dsv4-vllm --restart unless-stopped \
   --served-model-name deepseek-v4-flash \
   --host "${HOST:-127.0.0.1}" --port "${PORT:-8002}" ${auth[@]+"${auth[@]}"} \
   --tensor-parallel-size 2 \
-  --max-model-len ${MAX_LEN:-987136} \
+  --max-model-len ${MAX_LEN:-1038592} \
   --gpu-memory-utilization ${GPU_UTIL:-0.95} \
   --max-num-seqs ${MAX_SEQS:-4} \
   --max-num-batched-tokens ${MNBT:-512} \

@@ -1,0 +1,3 @@
+(Worker_TP0 pid=1457) INFO 09-13 01:05:24 [dspark.py:510] DSpark draft model loaded: 109 params
+(EngineCore pid=1155) INFO 09-13 01:07:51 [kv_cache_utils.py:2032] GPU KV cache size: 1,041,593 tokens, Maximum concurrency for 1,038,592 tokens per request: 1.00x
+max_len=1038592
